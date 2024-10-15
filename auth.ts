@@ -4,6 +4,7 @@ import authConfig from "@/auth.config";
 import { db } from "@/lib/db";
 import { getUserById } from "./data/user";
 import { UserRole } from "@prisma/client";
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -34,7 +35,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       //prevent signin without email verification
       if (!existingUser?.emailVerified) return false;
 
-      //ToDo add 2fa check
+      // 2fa check
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id)
+
+        if (!twoFactorConfirmation) return false;
+        
+        await db.twoFactorConfirmation.delete({
+          where: { id: twoFactorConfirmation.id }
+        });
+      }
+
 
       return true;
     },
@@ -46,6 +57,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
       }
+      if (token.isTwoFactorEnabled && session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+      }
       return session;
     },
     async jwt({ token }) {
@@ -53,6 +67,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const existingUser = await getUserById(token.sub);
       if (!existingUser) return token;
       token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       return token;
     }
   },
