@@ -92,7 +92,10 @@ export const login = async (
             email,
             password,
             redirectedTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
+            redirect: false,
         })
+
+        return { redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT };
 
     } catch (error) {
         if (error instanceof AuthError) {

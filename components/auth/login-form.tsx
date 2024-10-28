@@ -22,9 +22,11 @@ import { FormError } from "@/components/form-error"
 import { FormSuccess } from "@/components/form-success"
 import { login } from "@/actions/login"
 import Link from "next/link"
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const callbackUrl = searchParams.get("callbackUrl")
     const urlError = searchParams.get("error") === "OauthAccountNotLinked" ? "Email already in use with different provider!" : "";
     const [showTwoFactor, setShowTwoFactor] = useState(false)
@@ -56,6 +58,10 @@ export const LoginForm = () => {
                     }
                     if (data?.twoFactor) {
                         setShowTwoFactor(true)
+                    }
+                    if (data?.redirectTo) {
+                        router.push(data.redirectTo);
+                        router.refresh(); // Refresh if necessary to update data
                     }
                 })
                 .catch(() => setError("Something went wrong"))
