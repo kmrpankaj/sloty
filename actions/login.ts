@@ -12,7 +12,9 @@ import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
 export const login = async (
-    values: z.infer<typeof LoginSchema>) => {
+    values: z.infer<typeof LoginSchema>,
+    callbackUrl?: string | null,
+) => {
 
     const validatedFields = LoginSchema.safeParse(values);
 
@@ -62,9 +64,9 @@ export const login = async (
 
             const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
 
-            if(existingConfirmation) {
+            if (existingConfirmation) {
                 await db.twoFactorConfirmation.delete({
-                    where: {id: existingConfirmation.id}
+                    where: { id: existingConfirmation.id }
                 })
             }
 
@@ -89,7 +91,7 @@ export const login = async (
         await signIn("credentials", {
             email,
             password,
-            redirectedTo: DEFAULT_LOGIN_REDIRECT,
+            redirectedTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
         })
 
     } catch (error) {

@@ -56,11 +56,11 @@ export const UserInfo = ({
                     <p className="text-sm font-medium">
                         Two Factor Authentication
                     </p>
-                    <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
+                    <div className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
                        <Badge variant={user?.isTwoFactorEnabled?"success": "destructive" }>
                         {user?.isTwoFactorEnabled? "On" : "Off"}
                         </Badge>
-                    </p>
+                    </div>
                 </div>
             </CardContent>
         </Card>
