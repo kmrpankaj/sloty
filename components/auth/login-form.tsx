@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, useTransition } from "react"
 import { LoginSchema } from "@/schemas"
 import { useSearchParams } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 import {
     Form,
@@ -26,6 +27,7 @@ import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
     const searchParams = useSearchParams();
+    const { update } = useSession();
     const router = useRouter();
     const callbackUrl = searchParams.get("callbackUrl")
     const urlError = searchParams.get("error") === "OauthAccountNotLinked" ? "Email already in use with different provider!" : "";
@@ -47,7 +49,7 @@ export const LoginForm = () => {
 
         startTransition(() => {
             login(values, callbackUrl)
-                .then((data) => {
+                .then(async (data) => {
                     if (data?.error) {
                         form.reset();
                         setError(data.error)
@@ -61,6 +63,7 @@ export const LoginForm = () => {
                     }
                     if (data?.redirectTo) {
                         router.push(data.redirectTo);
+                        await update(); 
                         router.refresh(); // Refresh if necessary to update data
                     }
                 })
