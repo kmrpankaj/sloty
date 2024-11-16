@@ -11,8 +11,70 @@ generator client {
 }
 
 enum UserRole {
-  ADMIN
-  USER
+  ADMIN // Main admin for the entire platform
+  MODERATOR // Moderator for the platform
+  SUPPORT // Support agent for the platform
+  TENANT_ADMIN // Admin for a specific tenant
+}
+
+// Enum for organization-specific roles within a tenant
+enum OrganizationRole {
+  TENANT_USER // Regular user of a tenant organization
+  TENANT_MODERATOR // Moderator for a tenant organization
+}
+
+// Tenant model represents a tenant with optional custom domains and multiple organizations
+model Tenant {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  organizations Organization[] // Tenant can have multiple organizations (branches)
+  customDomains CustomDomain[] // Custom domains linked to tenant
+
+  @@map("tenants")
+}
+
+// CustomDomain model for managing custom domains linked to tenants
+model CustomDomain {
+  id             String       @id @default(cuid())
+  domain         String?      @unique // The custom domain (e.g., custom.com)
+  subdomain      String       @unique // Optional: The specific subdomain this custom domain maps to
+  tenantId       String // Links this domain to a tenant
+  organizationId String // Reference to the specific organization owning the domain
+  domainVerified Boolean      @default(false) // Verification status of the custom domain
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, domain]) // Ensures each tenant has unique custom domains
+  @@map("custom_domains")
+}
+
+// Organization model represents separate entities (branches) within a tenant
+model Organization {
+  id           String             @id @default(cuid())
+  name         String
+  tenantId     String // Links the organization to a tenant
+  users        UserOrganization[] // Users associated with this organization
+  customDomain CustomDomain[]
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("organizations")
+}
+
+// Junction table to link users to organizations with specific roles
+model UserOrganization {
+  id             String           @id @default(cuid())
+  userId         String
+  organizationId String
+  role           OrganizationRole // Role of the user within this specific organization
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId]) // Each user can have only one role per organization
+  @@map("user_organizations")
 }
 
 model User {
@@ -22,10 +84,12 @@ model User {
   emailVerified         DateTime?              @map("email_verified")
   image                 String?
   password              String?
-  role                  UserRole               @default(USER)
+  role                  UserRole               @default(TENANT_ADMIN)
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
+
+  userOrganizations UserOrganization[] // Memberships across tenant organizations
 
   @@map("users")
 }

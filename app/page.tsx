@@ -20,7 +20,12 @@ export default function Home() {
         <div>
           <LoginButton mode="modal" asChild>
             <Button variant="secondary" size="lg">
-              Sign In
+              Sign In Modal
+            </Button>
+          </LoginButton>
+          <LoginButton mode="redirect" asChild>
+            <Button className="ms-2" variant="secondary" size="lg">
+              Sign In 
             </Button>
           </LoginButton>
         </div>

@@ -177,7 +177,9 @@ const SettingsPage = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-                        <SelectItem value={UserRole.USER}>User</SelectItem>
+                        <SelectItem value={UserRole.MODERATOR}>Moderator</SelectItem>
+                        <SelectItem value={UserRole.TENANT_ADMIN}>User</SelectItem>
+                        <SelectItem value={UserRole.SUPPORT}>Support</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
