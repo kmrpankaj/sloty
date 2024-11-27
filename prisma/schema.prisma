@@ -31,8 +31,10 @@ model Tenant {
   updatedAt     DateTime       @updatedAt
   organizations Organization[] // Tenant can have multiple organizations (branches)
   customDomains CustomDomain[] // Custom domains linked to tenant
+  users         User[]         // Relation to users
 
   @@map("tenants")
+
 }
 
 // CustomDomain model for managing custom domains linked to tenants
@@ -55,6 +57,8 @@ model Organization {
   id           String             @id @default(cuid())
   name         String
   tenantId     String // Links the organization to a tenant
+  planType     String
+  subscriptionStatus Boolean
   users        UserOrganization[] // Users associated with this organization
   customDomain CustomDomain[]
 
@@ -88,6 +92,8 @@ model User {
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
+  tenantId              String? 
+  tenant                Tenant?                @relation(fields: [tenantId], references: [id])
 
   userOrganizations UserOrganization[] // Memberships across tenant organizations
 

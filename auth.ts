@@ -6,6 +6,7 @@ import { getUserById } from "./data/user";
 import { UserRole } from "@prisma/client";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 import { getAccountByUserId } from "@/data/account";
+import { getTenantIdByUserId } from "@/data/tenant";
 
 
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
@@ -73,6 +74,11 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
           session.user.email = token.email;
         }
         session.user.isOAuth = token.isOAuth as boolean;
+
+        if (token.tenantId) {
+          session.user.tenantId = token.tenantId as string | null; // Add tenantId to session.user
+        }
+        
       }
 
       return session;
@@ -93,6 +99,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       token.email = existingUser.email;
       token.role = existingUser.role;
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+      // Fetch tenantId associated with the user
+      token.tenantId = existingUser.tenantId || null; // Add tenantId to the token
       return token;
     }
   },

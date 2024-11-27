@@ -1,5 +1,5 @@
 "use client"
-import { Database, MonitorCheck, ShieldCheck, Settings } from "lucide-react"
+import { Database, MonitorCheck, ShieldCheck, Settings, CircleUser, Building2 } from "lucide-react"
 
 import {
     Sidebar,
@@ -36,6 +36,16 @@ const items = [
         title: "Settings",
         url: "/settings",
         icon: Settings,
+    },
+    {
+        title: "Tenants",
+        url: "/tenants",
+        icon: CircleUser,
+    },
+    {
+        title: "Create Organization",
+        url: "/createorg",
+        icon: Building2,
     },
 ]
 

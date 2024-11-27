@@ -52,3 +52,45 @@ export const NewPasswordSchema = z.object({
         message: "Minimum of six characters required",
     }),
 });
+
+
+export const CreateOrganizationSchema = z.object({
+    name: z
+      .string()
+      .min(2, "Organization name must be at least 2 characters long")
+      .min(1, "Organization name is required"),
+    planType: z
+      .string()
+      .min(1, "Plan type is required")
+      .refine(
+        (value) => ["basic", "standard", "premium"].includes(value),
+        "Plan type must be one of: basic, standard, premium"
+      ),
+    subdomain: z
+      .string()
+      .min(1, "Subdomain is required")
+      .regex(/^[a-z0-9]+$/, "Subdomain must be lowercase and alphanumeric"),
+      domain: z
+      .string()
+      .optional()
+      .refine(
+        (value) => !value || /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
+        "Invalid custom domain format"
+      ),
+  });
+
+
+export const CreateCustomDomainSchema = z.object({
+    domain: z
+      .string()
+      .optional()
+      .refine(
+        (value) => !value || /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
+        "Invalid custom domain format"
+      ),
+    subdomain: z
+      .string()
+      .min(1, "Subdomain is required") // Replaces .nonempty()
+      .regex(/^[a-z0-9]+$/, "Subdomain must be lowercase and alphanumeric"),
+    organizationId: z.string().min(1, "Organization ID is required"), // Replaces .nonempty()
+  });

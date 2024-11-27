@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { getUserByEmail } from "@/data/user";
 import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/token";
+import { getTenantById } from "@/data/tenant";
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const validatedFields = RegisterSchema.safeParse(values);
@@ -24,13 +25,21 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         return { error: "Email already in use" }
     }
 
+    const tenant = await db.tenant.create({
+        data: {
+            name,
+        }
+    })
+
     await db.user.create({
         data: {
             name,
             email,
             password: hashedPassword,
+            tenantId: tenant.id,
         }
     });
+
 
     const verificationToken = await generateVerificationToken(email)
 
