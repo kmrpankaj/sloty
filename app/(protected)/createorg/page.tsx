@@ -29,7 +29,7 @@ import { CreateOrganizationSchema } from "@/schemas";
 
 type OrganizationFormValues = z.infer<typeof CreateOrganizationSchema>;
 
-const CreateOrganizationForm = ({ tenantId }: { tenantId: string }) => {
+const CreateOrganizationForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<Record<string, string[]> | string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
