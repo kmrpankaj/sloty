@@ -33,7 +33,6 @@ export const createCustomDomain = async (data: z.infer<typeof CreateCustomDomain
         data: {
           domain,
           subdomain,
-          tenantId: mytenant,
           organizationId,
           domainVerified: false, // Default to unverified
         },

@@ -30,55 +30,42 @@ model Tenant {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   organizations Organization[] // Tenant can have multiple organizations (branches)
-  customDomains CustomDomain[] // Custom domains linked to tenant
-  users         User[]         // Relation to users
+  users         User[] // Relation to users
 
   @@map("tenants")
-
 }
 
 // CustomDomain model for managing custom domains linked to tenants
 model CustomDomain {
-  id             String       @id @default(cuid())
-  domain         String?      @unique // The custom domain (e.g., custom.com)
-  subdomain      String       @unique // Optional: The specific subdomain this custom domain maps to
-  tenantId       String // Links this domain to a tenant
-  organizationId String // Reference to the specific organization owning the domain
-  domainVerified Boolean      @default(false) // Verification status of the custom domain
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  tenant         Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id             String  @id @default(cuid())
+  domain         String? @unique // Custom domain (e.g., custom.com)
+  subdomain      String? @unique // Subdomain (optional)
+  organizationId String // Links to the specific organization owning the domain
+  domainVerified Boolean @default(false) // Verification status of the domain
 
-  @@unique([tenantId, domain]) // Ensures each tenant has unique custom domains
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, domain]) // Ensures each organization has unique custom domains
   @@map("custom_domains")
 }
 
 // Organization model represents separate entities (branches) within a tenant
 model Organization {
-  id           String             @id @default(cuid())
-  name         String
-  tenantId     String // Links the organization to a tenant
-  planType     String
+  id                 String         @id @default(cuid())
+  name               String
+  tenantId           String // Links the organization to a tenant
+  planType           String
   subscriptionStatus Boolean
-  users        UserOrganization[] // Users associated with this organization
-  customDomain CustomDomain[]
+  tenantUser         TenantUser[] // Users associated with this organization
+  customDomain       CustomDomain[]
+  deletedAt          DateTime? // Null means the record is active; non-null means it's soft-deleted
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
   @@map("organizations")
-}
-
-// Junction table to link users to organizations with specific roles
-model UserOrganization {
-  id             String           @id @default(cuid())
-  userId         String
-  organizationId String
-  role           OrganizationRole // Role of the user within this specific organization
-
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, organizationId]) // Each user can have only one role per organization
-  @@map("user_organizations")
 }
 
 model User {
@@ -92,12 +79,38 @@ model User {
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
-  tenantId              String? 
-  tenant                Tenant?                @relation(fields: [tenantId], references: [id])
 
-  userOrganizations UserOrganization[] // Memberships across tenant organizations
+  // Tenant admin context
+  tenantId              String?
+  tenant                Tenant? @relation(fields: [tenantId], references: [id])
+
+  // Linking to tenant-specific users
+  tenantUsers           TenantUser[]
 
   @@map("users")
+}
+
+model TenantUser {
+  id       String           @id @default(cuid())
+  email    String           @unique
+  name     String?
+  password String
+  role     OrganizationRole // Role within the organization (e.g., Member, Manager, Admin)
+
+// Links to the organization
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+// Soft delete fields
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Null means the record is active; non-null means it's soft-deleted
+
+  // Links to the global User
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([organizationId, email]) // Ensure unique email per organization
+  @@map("tenant_users")
 }
 
 model Account {
