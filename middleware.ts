@@ -42,7 +42,8 @@ export default auth(async (req) => {
   }
 
   // Determine if the request is for the main domain or a subdomain
-  const isSubdomain = subdomain && !["www", "localhost"].includes(subdomain);
+  const isMainDomain = hostname === "sloty.in" || hostname.includes("localhost:3000");
+  const isSubdomain = subdomain && !["www", "localhost"].includes(subdomain) && !isMainDomain;
 
   if (isSubdomain) {
     // Attach the subdomain to the request headers for later use
