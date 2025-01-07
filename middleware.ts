@@ -40,9 +40,9 @@ export default auth(async (req) => {
     // Replace 'sloty.in' with your actual domain if different
     subdomain = hostnameParts[0];
   }
-
+  console.log("Middleware → Detected Subdomain:", subdomain);
   // Determine if the request is for the main domain or a subdomain
-  const isMainDomain = hostname === "sloty.in" || hostname.includes("localhost:3000");
+  const isMainDomain = hostname === "sloty.in" || hostname === "www.sloty.in" || hostname === "localhost:3000";
   const isSubdomain = subdomain && !["www", "localhost"].includes(subdomain) && !isMainDomain;
 
   if (isSubdomain) {
