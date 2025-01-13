@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
+import { LoginForm } from "@/components/tenant-user-login-form"
 
 export default function OrganizationLoginPage() {
   const router = useRouter();
@@ -35,27 +36,33 @@ export default function OrganizationLoginPage() {
   };
 
   return (
-    <div>
-      <h1>Login to {organization}</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Log In</button>
-      </form>
+    // <div>
+    //   <h1>Login to {organization}</h1>
+    //   <form onSubmit={handleSubmit}>
+    //     <input
+    //       type="email"
+    //       name="email"
+    //       placeholder="Email"
+    //       value={email}
+    //       onChange={(e) => setEmail(e.target.value)}
+    //       required
+    //     />
+    //     <input
+    //       type="password"
+    //       name="password"
+    //       placeholder="Password"
+    //       value={password}
+    //       onChange={(e) => setPassword(e.target.value)}
+    //       required
+    //     />
+    //     <button type="submit">Log In</button>
+    //   </form>
+    // </div>
+
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <LoginForm />
+      </div>
     </div>
   );
 }
