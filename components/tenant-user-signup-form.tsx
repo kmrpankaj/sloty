@@ -1,13 +1,56 @@
+"use client";
+
+import { FormEvent, useState } from "react";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RegisterSchema } from "@/schemas";
+import { registerTenantUser } from "@/actions/register-tenant-user";
+import { redirect, useRouter } from "next/navigation";
 
-export function LoginForm({
+interface SignupFormProps extends React.HTMLAttributes<HTMLDivElement> {
+  organizationId: string;
+}
+
+export function SignupForm({
+  organizationId,
   className,
   ...props
-}: React.ComponentProps<"div">) {
+}: SignupFormProps) {
+
+  // Local form states
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+
+  const router = useRouter(); // To handle redirection
+
+  // Handle form submission
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setMessage(null);
+
+    // Call your server action
+    const result = await registerTenantUser(organizationId, {
+      name,
+      email,
+      password,
+      // If you want to handle phone on the backend, add it to your schema & server
+      // phone,
+    });
+
+    if (result.error) {
+      setMessage(result.error);
+    } else {
+      setMessage(result.success ?? "Registered successfully!");
+
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
@@ -26,6 +69,8 @@ export function LoginForm({
                   id="name"
                   type="text"
                   placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
@@ -35,24 +80,34 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">Phone</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
                   type="text"
                   placeholder="Your phone number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   required
                 />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  
+
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
               <Button type="submit" className="w-full">
                 Create

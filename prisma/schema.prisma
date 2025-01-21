@@ -92,7 +92,7 @@ model User {
 
 model TenantUser {
   id       String           @id @default(cuid())
-  email    String           @unique
+  email    String           
   name     String?
   password String
   role     OrganizationRole // Role within the organization (e.g., Member, Manager, Admin)
@@ -100,6 +100,9 @@ model TenantUser {
 // Links to the organization
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Field for verifying tenant-user's email separately
+  emailVerified  DateTime?
 
 // Soft delete fields
   createdAt DateTime  @default(now())

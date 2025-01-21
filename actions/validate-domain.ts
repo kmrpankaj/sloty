@@ -5,16 +5,16 @@ import { getDomain } from "@/data/organization";
 /**
  * Validates if the provided domain or subdomain exists.
  * @param {string} domain - The domain or subdomain to validate.
- * @returns {Promise<{ success?: string; error?: string }>} - Returns success or error message.
+ * @returns {Promise<{ success?: { message: string; organizationId: string }; error?: string }>} - Returns success with organizationId or error message.
  */
 export const validateDomain = async (domain: string) => {
-    console.log("validateDomain → Received domain:", domain);
+  //console.log("validateDomain → Received domain:", domain);
   try {
-    const isValid = await getDomain(domain);
-    console.log("validateDomain → isValid:", isValid);
+    const domainData = await getDomain(domain);
+    //console.log("validateDomain → domainData:", domainData);
 
-    if (isValid) {
-      return { success: "Valid domain or subdomain" };
+    if (domainData) {
+      return { success: {message: "Valid domain or subdomain", organizationId: domainData.organizationId} };
     }
 
     return { error: "Invalid domain or subdomain" };

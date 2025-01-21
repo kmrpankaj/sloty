@@ -3,10 +3,10 @@ import { db } from "@/lib/db";
 /**
  * Checks if a custom domain or subdomain exists.
  * @param {string} value - The domain or subdomain to check.
- * @returns {Promise<boolean>} - Returns true if a domain or subdomain exists, otherwise false.
+ * @returns {Promise<{ organizationId: string } | null>} - Returns organizationId if found, otherwise null.
  */
-export const getDomain = async (value: string): Promise<boolean> => {
-    console.log("getDomain → Checking:", value);
+export const getDomain = async (value: string): Promise<{ organizationId: string } | null> => {
+  console.log("getDomain → Checking:", value);
   try {
     // Check for custom domain
     const customDomain = await db.customDomain.findFirst({
@@ -16,12 +16,16 @@ export const getDomain = async (value: string): Promise<boolean> => {
           { subdomain: value }, // Check for subdomain
         ],
       },
+      select: { organizationId: true },
     });
     console.log("getDomain → Found?", !!customDomain);
-    // Return true if found, false otherwise
-    return !!customDomain;
-  } catch(error) {
+    // If found, return the organizationId
+    if (customDomain?.organizationId) {
+      return { organizationId: customDomain.organizationId };
+    }
+    return null;
+  } catch (error) {
     console.error("Error in getDomain:", error);
-    return false;
+    return null;
   }
 };
