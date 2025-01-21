@@ -6,7 +6,7 @@ import React from 'react'
 
 
 function Register() {
-  const { organizationId, error } = useOrganization();
+  const { organizationId } = useOrganization();
 
   console.log("RegisterPage → organizationId:", organizationId); // Log this
   return (
