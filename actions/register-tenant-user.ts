@@ -40,7 +40,7 @@ export const registerTenantUser = async (
         data: {
           email,
           name,
-          //role: "TENANT_USER", // Default role
+          role: undefined, // No role for global user
         },
       });
     }

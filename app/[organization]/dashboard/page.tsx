@@ -4,7 +4,7 @@ import React from 'react'
 
 function Dashboard() {
   return (
-    <div>register Form</div>
+    <div>Dasshboard page</div>
   )
 }
 

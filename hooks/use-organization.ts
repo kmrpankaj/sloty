@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 export function useOrganization() {
   const { organization } = useParams();
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  const [organizationName, setOrganizationName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export function useOrganization() {
       .then((res) => {
         if (res.success) {
           setOrganizationId(res.success.organizationId);
+          setOrganizationName(res.success.organizationName);
         } else {
           setError(res.error || "Invalid organization");
         }
@@ -29,5 +31,5 @@ export function useOrganization() {
 
 
 
-  return { organizationId: organizationId!, error };
+  return { organizationId: organizationId!, organizationName, error };
 }

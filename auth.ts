@@ -24,6 +24,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
+
+      console.log("signIn callback → user:", user);
       //allow oAuth without email veirfication
       if (account?.provide !== "credentials") return true;
 
@@ -52,7 +54,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       return true;
     },
     async session({ token, session }) {
-      console.log({ sessionToken: token })
+      console.log("session callback → token:", token);
       if (token.sub && session.user) {
         session.user.id = token.sub
       }
@@ -80,12 +82,13 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         }
         
       }
-
+      console.log("session callback → token:", token);
+      console.log("session callback → session before modification:", session);
       return session;
     },
 
     async jwt({ token }) {
-
+      console.log("jwt callback → token before:", token);
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
 
@@ -101,6 +104,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
       // Fetch tenantId associated with the user
       token.tenantId = existingUser.tenantId || null; // Add tenantId to the token
+      console.log("jwt callback → token after:", token);
       return token;
     }
   },

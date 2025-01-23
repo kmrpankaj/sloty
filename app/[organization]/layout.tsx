@@ -29,7 +29,7 @@ export default async function OrganizationLayout({
   return (
     <div>
       <header>
-        <h1>Welcome to {organization}!</h1>
+        {/* <h1>Welcome to {organization}!</h1> */}
       </header>
       <main>{React.cloneElement(children as React.ReactElement, { organization, organizationId })}</main>
     </div>
