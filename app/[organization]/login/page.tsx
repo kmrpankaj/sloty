@@ -1,4 +1,3 @@
-// app/[organization]/login/page.tsx
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -10,20 +9,25 @@ import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import { loginTenantUser } from "@/actions/login-tenant-user";
-import { useOrganization } from "@/hooks/use-organization"; // If you want to display orgName
+import { useOrganization } from "@/hooks/use-organization";
+import { LoginForm } from "@/components/tenant-user-login-form";
 
 export default function TenantLoginPage() {
-  const { organization } = useParams() as { organization: string }; // e.g. "bookbuddy"
+  // 1) Extract subdomain/org from the URL
+  const { organization } = useParams() as { organization: string };
   const { organizationId, organizationName, error: orgError } = useOrganization();
 
+  // 2) Handle query params, NextAuth session, navigation
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const router = useRouter();
   const { update } = useSession();
+  const router = useRouter();
 
+  // 3) Local error & loading states
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
+  // 4) Set up react-hook-form with zod
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -32,11 +36,11 @@ export default function TenantLoginPage() {
     },
   });
 
+  // 5) Submission logic calling our server action
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
     setError("");
 
     startTransition(async () => {
-      // Call our separate tenant login server action
       const result = await loginTenantUser(organization, values, callbackUrl);
 
       if (result.error) {
@@ -46,52 +50,33 @@ export default function TenantLoginPage() {
       }
 
       if (result.redirectTo) {
-        // Refresh session, then navigate
+        // Refresh NextAuth session & redirect
         await update();
         router.push(result.redirectTo);
       }
     });
   }
 
-  // If subdomain is invalid, show error
+  // 6) Handle invalid org or loading states
   if (orgError) {
     return <div className="p-6">Error: {orgError}</div>;
   }
-
-  // Or if still loading org info
   if (!organizationId) {
     return <div className="p-6">Loading...</div>;
   }
 
+  // 7) Render your custom LoginForm with the needed props
   return (
-    <div className="p-6">
-      <h1>Login to {organizationName || organization}</h1>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label>Email</label>
-          <input
-            {...form.register("email")}
-            type="email"
-            className="border p-2 w-full"
-          />
-        </div>
-        <div>
-          <label>Password</label>
-          <input
-            {...form.register("password")}
-            type="password"
-            className="border p-2 w-full"
-          />
-        </div>
-        {error && <p className="text-red-500">{error}</p>}
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-blue-500 text-white px-4 py-2"
-        >
-          {isPending ? "Logging in..." : "Login"}
-        </button>
-      </form>
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
+      <div className="w-full max-w-sm md:max-w-3xl">
+        <LoginForm
+          onSubmit={form.handleSubmit(onSubmit)}
+          register={form.register}
+          isPending={isPending}
+          error={error}
+          organizationName={organizationName || organization}
+        />
+      </div>
     </div>
   );
 }
