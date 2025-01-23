@@ -10,9 +10,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      const subdomain = window.location.hostname.split(".")[0];
+      //const subdomain = window.location.hostname.split(".")[0];
       router.push(`/login`);
     }
+
   }, [status, router]);
 
   if (status === "loading") {
