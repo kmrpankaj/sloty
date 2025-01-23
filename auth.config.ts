@@ -137,7 +137,7 @@ export default {
     sessionToken: {
       name: "authjs.session-token",
       options: {
-        domain: isProduction ? ".sloty.in" : ".localhost",
+        //domain: isProduction ? ".sloty.in" : ".localhost",
         httpOnly: true,
         sameSite: "lax",
         path: "/",
