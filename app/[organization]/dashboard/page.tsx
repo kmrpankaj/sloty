@@ -32,7 +32,7 @@ export default function DashboardPage() {
 
   }, [status, router, update]);
 
-  if (status === "loading") {
+  if (isLoading) {
     return <p>Loading...</p>;
   }
 
