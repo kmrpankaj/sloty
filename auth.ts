@@ -9,11 +9,15 @@ import { getAccountByUserId } from "@/data/account";
 import { getTenantIdByUserId } from "@/data/tenant";
 
 
+const isProduction = process.env.NODE_ENV === "production";
+const rootDomain = isProduction ? "https://sloty.in" : "http://localhost:3000";
+
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   pages: {
     signIn: "/auth/login",
     error: "/auth/error"
   },
+  
   events: {
     async linkAccount({ user }) {
       await db.user.update({
@@ -26,6 +30,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     async signIn({ user, account }) {
 
       console.log("signIn callback → user:", user);
+      console.log("signIn callback → account:", account);
       //allow oAuth without email veirfication
       if (account?.provide !== "credentials") return true;
 
@@ -55,6 +60,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     },
     async session({ token, session }) {
       console.log("session callback → token:", token);
+      console.log("session callback → session before:", session);
       if (token.sub && session.user) {
         session.user.id = token.sub
       }
@@ -77,18 +83,19 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         }
         session.user.isOAuth = token.isOAuth as boolean;
 
-        if (token.tenantId) {
+        if (token.tenantId && session.user) {
           session.user.tenantId = token.tenantId as string | null; // Add tenantId to session.user
         }
-        
+
       }
       console.log("session callback → token:", token);
       console.log("session callback → session before modification:", session);
       return session;
     },
 
-    async jwt({ token }) {
+    async jwt({ token, user }) {
       console.log("jwt callback → token before:", token);
+
       if (!token.sub) return token;
       const existingUser = await getUserById(token.sub);
 
@@ -97,13 +104,15 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       const existingAccount = await getAccountByUserId(
         existingUser.id
       )
-      token.isOAuth = !!existingAccount;
-      token.name = existingUser.name;
-      token.email = existingUser.email;
-      token.role = existingUser.role;
-      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
-      // Fetch tenantId associated with the user
-      token.tenantId = existingUser.tenantId || null; // Add tenantId to the token
+      if (user) {
+        token.isOAuth = !!existingAccount;
+        token.name = existingUser.name;
+        token.email = existingUser.email;
+        token.role = existingUser.role;
+        token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+        // Fetch tenantId associated with the user
+        token.tenantId = existingUser.tenantId || null; // Add tenantId to the token
+      }
       console.log("jwt callback → token after:", token);
       return token;
     }

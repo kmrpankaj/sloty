@@ -47,6 +47,9 @@ export const settings = async (
         return { success: "Verification email sent!" }
     }
 
+    // Initialize an object to hold only the fields that should be updated
+    const updateData: Partial<z.infer<typeof SettingsSchema>> = {};
+
     if (values.password && values.newPassword && dbUser.password) {
         const passwordsMatch = await bcrypt.compare(
             values.password,
@@ -57,19 +60,29 @@ export const settings = async (
             return {error: "Incorrect password!"}
         }
 
-        const hashedPassword = await bcrypt.hash(
-            values.newPassword,
-            10,
-        )
-        values.password = hashedPassword;
-        values.newPassword = undefined;
+        const hashedPassword = await bcrypt.hash(values.newPassword, 10);
+        updateData.password = hashedPassword;
     }
 
+        // Add other fields to updateData if they are provided
+        if (values.name) {
+            updateData.name = values.name;
+        }
+        if (values.email) {
+            updateData.email = values.email;
+        }
+        if (values.isTwoFactorEnabled !== undefined) {
+            updateData.isTwoFactorEnabled = values.isTwoFactorEnabled;
+        }
+        if (values.role) {
+            updateData.role = values.role;
+        }
+
+// Update the user with only the fields in updateData
     const updatedUser = await db.user.update({
         where: { id: dbUser.id },
-        data: {
-            ...values,
-        }
+        data: updateData,
+        
     });
 
     unstable_update({

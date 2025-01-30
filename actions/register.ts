@@ -39,7 +39,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             tenantId: tenant.id,
         }
     });
-
+    console.log("Hashed password:", hashedPassword);
 
     const verificationToken = await generateVerificationToken(email)
 

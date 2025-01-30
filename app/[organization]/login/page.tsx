@@ -53,6 +53,7 @@ export default function TenantLoginPage() {
         // Refresh NextAuth session & redirect
         await update();
         router.push(result.redirectTo);
+        router.refresh(); // 🔹 Force revalidation of session
       }
     });
   }

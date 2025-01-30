@@ -26,6 +26,8 @@ export default async function OrganizationLayout({
   const { organizationId } = validation.success;
   console.log("OrganizationLayout → organizationId:", organizationId);
   console.log("OrganizationLayout → organizationId:", organization);
+
+  
   return (
     <div>
       <header>
