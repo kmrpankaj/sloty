@@ -51,14 +51,14 @@ export const loginTenantUser = async (
 
     console.log("signIn response res:", res);
     // 3) signIn returns: { error?: string; ok: boolean; status?: number; url?: string }
-    if (!res.ok) {
+    if (!res) {
       console.log("loginTenantUser → Sign-in failed:", res.error);
       return { error: res.error || "Invalid credentials" };
     }
 
     console.log("✅loginTenantUser → Sign-in success! Redirecting to:", res.url);
     // 4) If success, redirect to res.url (usually the callbackUrl)
-    return { redirectTo: res.url };
+    return { redirectTo: res.url, success: true, message: "Login successful!" };
 
   } catch (error) {
     console.error("loginTenantUser → Error during sign-in:", error);
