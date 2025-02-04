@@ -25,6 +25,7 @@ export default function TenantLoginPage() {
 
   // 3) Local error & loading states
   const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   // 4) Set up react-hook-form with zod
@@ -39,7 +40,7 @@ export default function TenantLoginPage() {
   // 5) Submission logic calling our server action
   async function onSubmit(values: z.infer<typeof LoginSchema>) {
     setError("");
-
+    setSuccess("");
     startTransition(async () => {
       const result = await loginTenantUser(organization, values, callbackUrl);
 
@@ -48,7 +49,9 @@ export default function TenantLoginPage() {
         form.reset();
         return;
       }
-
+      if (result.success) {
+        setSuccess(result.message);
+      }
       if (result.redirectTo) {
         // Refresh NextAuth session & redirect
         await update();
@@ -75,6 +78,7 @@ export default function TenantLoginPage() {
           register={form.register}
           isPending={isPending}
           error={error}
+          success={success}
           organizationName={organizationName || organization}
         />
       </div>
