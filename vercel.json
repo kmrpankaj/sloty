@@ -1,0 +1,9 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/auth/:path*",
+        "destination": "httplocalhost:3000/api/auth/:path*"
+      }
+    ]
+  }
+  
