@@ -2,7 +2,7 @@
     "rewrites": [
       {
         "source": "/api/auth/:path*",
-        "destination": "httplocalhost:3000/api/auth/:path*"
+        "destination": "https://sloty.in/api/auth/:path*"
       }
     ]
   }
