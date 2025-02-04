@@ -1,9 +1,0 @@
-{
-    "rewrites": [
-      {
-        "source": "/api/auth/:path*",
-        "destination": "http://sloty.in/api/auth/:path*"
-      }
-    ]
-  }
-  
